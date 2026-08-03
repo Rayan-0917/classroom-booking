@@ -17,14 +17,14 @@ passport.use(
 
                 //email domain check
 
-                const checkUserQuery=await pool.query("SELECT * FROM users WHERE google_id=$1", [googleId]);
-                if(checkUserQuery.rows.length>0){
-                    return done(null, checkUserQuery.rows[0]);
+                const checkUser=await pool.query("SELECT * FROM users WHERE google_id=$1", [googleId]);
+                if(checkUser.rows.length>0){
+                    return done(null, checkUser.rows[0]);
                 }
 
-                const newUserQuery=await pool.query(`INSERT INTO users (google_id, email, name, role, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [googleId, email, name, 'Faculty', 1]);
+                const newUser=await pool.query(`INSERT INTO users (google_id, email, name, role, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [googleId, email, name, 'Faculty', 1]);
 
-                return done(null, newUserQuery.rows[0]);
+                return done(null, newUser.rows[0]);
             } catch (error) {
                 return done(error, null);
             }
