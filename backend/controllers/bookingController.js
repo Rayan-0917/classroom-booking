@@ -13,7 +13,7 @@ const getBookingsByDate=async(req, res)=>{
 
         const result=await pool.query("SELECT b.*, u.name AS booked_by_name, u.email AS booked_by_email, u.role AS booked_by_role, u.priority AS booked_by_priority FROM bookings b JOIN users u ON b.user_id=u.id WHERE b.start_time>=$1 AND b.end_time<=$2 AND b.status IN ('Approved', 'Pending') ORDER BY b.start_time ASC", [startOfDay, endOfDay]);
 
-        res.json({data, bookings: result.rows})
+        res.json({date, bookings: result.rows})
     } catch (error) {
         console.log("error: ", error);
         res.status(500).json({error: "error fetching bookings"})

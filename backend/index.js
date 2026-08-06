@@ -1,13 +1,14 @@
 const express=require("express");
 const cors=require("cors");
 const session=require("express-session");
+require("dotenv").config();
 const passport=require("./config/passport");
 const pool=require("./config/db");
 const authRouter=require("./routes/authRoutes");
 const roomRouter=require("./routes/roomRoutes");
 const bookingRouter=require("./routes/bookingRoutes");
 const adminRouter=require("./routes/adminRoutes");
-require("dotenv").config();
+
 
 
 const app=express();

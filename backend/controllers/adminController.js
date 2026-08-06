@@ -85,7 +85,7 @@ const reassignRoom=async(req, res)=>{
 
         res.status(200).json({
             message: "Reassignment succesful",
-            newBooking=newBooking.rows[0]
+            newBooking: newBooking.rows[0]
         })
     } catch (error) {
         await client.query("ROLLBACK");
