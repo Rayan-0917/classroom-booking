@@ -22,8 +22,8 @@ CREATE TABLE bookings (
     id SERIAL PRIMARY KEY,
     room_id INT REFERENCES rooms(id) ON DELETE CASCADE,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'Approved',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT valid_slot CHECK (end_time>start_time)

@@ -1,10 +1,10 @@
 import React from 'react'
 import BookingGrid from '../components/BookingGrid'
 
-const Dashboard = () => {
+const Dashboard = ({user}) => {
   return (
     <div>
-      <BookingGrid/>
+      <BookingGrid user={user}/>
     </div>
   )
 }

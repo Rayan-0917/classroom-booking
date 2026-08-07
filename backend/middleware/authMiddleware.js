@@ -2,7 +2,7 @@ function isAuthenticated(req, res, next){
     if(req.isAuthenticated()){
         return next();
     }
-    return res.status(402).json({message: "Unauthorized. Please log in first."})
+    return res.status(401).json({message: "Unauthorized. Please log in first."})
 }
 
 function isAdmin(req, res, next){
