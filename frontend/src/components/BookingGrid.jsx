@@ -2,7 +2,8 @@ import React from 'react'
 import api from '../services/api'
 import { useState } from 'react';
 import { useEffect } from 'react';
-import {AlertCircle, CheckCircle, ChevronLeft, ChevronRight, X} from 'lucide-react';
+import {ChevronLeft, ChevronRight} from 'lucide-react';
+import Feedback from './Feedback';
 
 const generateTimeSlots=()=>{
     const slots=[];
@@ -216,15 +217,15 @@ const BookingGrid = ({user}) => {
 
   return (
     <div>
-      <div className='bg-white rounded-2xl border border-gray-300 shadow-sm p-6'>
-        <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6'>
-            <div>
+      <div className='bg-white rounded-2xl borde shadow-sm'>
+        <div className='flex flex-col p-6 bg-gray-50 md:flex-row md:items-center justify-between gap-4 mb-3 border-b border-gray-100'>
+            <div className='mb-6'>
                 <h2 className='text-xl font-bold '>
                     Available Rooms and Slots
                 </h2>
             </div>
-            <div className='flex flex-wrap items-center gap-3'>
-                <div className='flex items-center bg-gray-200 rounded-xl p-1 border border-gray-400'>
+            <div className='flex flex-wrap items-center gap-3 mb-6'>
+                <div className='flex items-center bg-gray-50 rounded-xl p-1 border border-gray-200'>
                     <button onClick={()=>shiftDate(-1)} className='p-1.5 rounded-lg cursor-pointer'>
                         <ChevronLeft className='w-6 h-6'/>
                     </button>
@@ -242,21 +243,11 @@ const BookingGrid = ({user}) => {
             </div>
         </div>
         {feedbackMsg && (
-            <div className={`mb-4 p-3 rounded-xl border flex items-center justify-between ${feedbackMsg.type==="success" ? "bg-green-200 border-green-300 text-green-600" : "bg-red-200 border-red-300 text-red-600"}`}>
-                <div className='flex items-center gap-2'>
-                    {feedbackMsg.type==="success" ? (
-                        <CheckCircle className='w-4 h-4 text-green-500'/>
-                    ) : (
-                        <AlertCircle className='w-4 h-4 text-red-500'/>
-                    )}
-                    <span>{feedbackMsg.text}</span>
-                </div>
-                <button onClick={()=>setFeedbackMsg(null)}>
-                    <X className='w-4 h-4'/>
-                </button>
+            <div className='p-4'>
+                <Feedback feedbackMsg={feedbackMsg} setFeedbackMsg={setFeedbackMsg}/>
             </div>
         )}
-        <div className='flex items-center gap-10 mb-4 mt-10 font-medium '>
+        <div className='flex items-center gap-10 mb-4 mt-10 font-medium p-4 '>
             <div className='flex items-center gap-2'>
                 <div className='w-6 h-6 rounded bg-green-200 border border-green-400'></div>
                 <span>Available</span>
@@ -281,9 +272,9 @@ const BookingGrid = ({user}) => {
             rooms.length===0 ? (
                 <div className='p-8 text-center font-medium'>No rooms available</div>
             ) : (
-                <div className='space-y-4'>
+                <div className='space-y-4 p-6'>
                     {filteredRooms.map((room)=>(
-                        <div key={room.id} className='border border-gray-100 rounded-xl p-4 bg-white shadow-sm hover:border-gray-200 transition'>
+                        <div key={room.id} className='border border-gray-100 rounded-xl p-10 bg-white shadow-sm hover:border-gray-200 transition'>
                             <div className='flex items-center justify-between border-b border-gray-100 pb-3 mb-3'>
                                 <div className='flex items-center gap-2'>
                                     <span className='font-bold'>

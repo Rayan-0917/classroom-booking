@@ -99,4 +99,36 @@ const createBooking = async (req, res) => {
     }
 }
 
-module.exports = { getBookingsByDate, createBooking };
+const getUserBookingsandReassignments=async(req, res)=>{
+    try {
+        const user_id=req.user.id
+        const bookingResult=await pool.query("SELECT b.*, r.id AS room_id, r.room_number, r.is_high_priority, r.capacity FROM bookings b JOIN rooms r ON b.room_id=r.id WHERE b.user_id=$1 AND b.status!='Cancelled' AND b.start_time > NOW() ORDER BY b.start_time ASC", [user_id])
+
+        const reassignmentResult=await pool.query("SELECT re.*, r.room_number AS original_room_number FROM reassignments re JOIN rooms r ON re.original_room_id=r.id WHERE re.new_user_id=$1 AND re.status='Pending'", [user_id])
+
+        return res.json({bookings: bookingResult.rows, reassingments: reassignmentResult.rows});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: "Failed to fetch bookings"})
+    }
+}
+
+const cancelBooking=async(req, res)=>{
+    const {id}=req.query;
+    const user_id=req.user.id
+    try{
+        const result=await pool.query("UPDATE bookings SET status='Cancelled' WHERE id=$1 AND user_id=$2 RETURNING *", [id, user_id])
+
+        if(result.rows.length===0){
+            return res.status(404).json({error: "Booking not found."})
+        }
+
+        res.json({message: "Booking cancelled."})
+    }
+    catch{
+        console.log(error);
+        res.status(500).json({ error: "Failed to cancel booking" });
+    }
+}
+
+module.exports = { getBookingsByDate, createBooking, getUserBookingsandReassignments, cancelBooking };
