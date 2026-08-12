@@ -40,7 +40,7 @@ const time_slots=generateTimeSlots();
 
 const BookingGrid = ({user}) => {
 
-    const [selectedDate, setSelectedDate]=useState(new Date().toISOString().split("T")[0]);
+    const [selectedDate, setSelectedDate]=useState(new Date().toLocaleDateString('sv-SE').split("T")[0]);
     const [rooms, setRooms]=useState([]);
     const [bookings, setBookings]=useState([]);
     const [loading, setLoading]=useState(true);
@@ -108,11 +108,13 @@ const BookingGrid = ({user}) => {
         if(existingBooking){
             if(existingBooking.user_id===user.id){
                 setFeedbackMsg({type: "error", text: "You have already booked this slot."})
+                return;
             }
-            else if(user.priority<=(existingBooking.booked_by_priority || 1)){
+            if(user.priority<=(existingBooking.booked_by_priority || 1)){
                 setFeedbackMsg({type: "error", text: "Slot has been booked by someone else."})
+                return;
             }
-            return;
+            setFeedbackMsg({type: "info", text: `The slot is booked by ${existingBooking.booked_by_name}. Confirming will reassign their booking.`})
         }
 
         if(selectedRoom && selectedRoom.id!==room.id){
@@ -217,7 +219,7 @@ const BookingGrid = ({user}) => {
 
   return (
     <div>
-      <div className='bg-white rounded-2xl borde shadow-sm'>
+      <div className='bg-white rounded-2xl border border-gray-50 shadow-sm'>
         <div className='flex flex-col p-6 bg-gray-50 md:flex-row md:items-center justify-between gap-4 mb-3 border-b border-gray-100'>
             <div className='mb-6'>
                 <h2 className='text-xl font-bold '>
@@ -262,7 +264,7 @@ const BookingGrid = ({user}) => {
             </div>
             <div className='flex items-center gap-2'>
                 <div className='w-6 h-6 rounded bg-amber-500 border border-gray-100'></div>
-                <span>Pending Admin Approval</span>
+                <span>High Priority Rooms</span>
             </div>
         </div>
 

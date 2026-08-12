@@ -8,8 +8,8 @@ const router=express.Router();
 router.use(isAuthenticated, isAdmin);
 
 router.get("/pending-approvals", getPendingApprovals)
-router.put("/approve-booking/:id", HandlePendingBookings)
-router.get("/reassignments", getPendingReassignments)
-router.post("/reassign-room", reassignRoom)
+router.put("/pending-approvals/:id", HandlePendingBookings)
+router.get("/pending-reassignments", getPendingReassignments)
+router.post("/reassign", reassignRoom)
 
 module.exports=router;

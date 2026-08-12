@@ -6,6 +6,7 @@ import api from './services/api.js';
 import { useEffect } from 'react';
 import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
 
 function App() {
   const [user, setUser]=useState(null);
@@ -21,11 +22,13 @@ function App() {
     } catch (error) {
         console.log(error);
     }
+    finally{
+      setLoading(false);
+    }
   }
 
   useEffect(()=>{
     getUser()
-    setLoading(false);
   }, [])
 
   if(loading){
@@ -38,10 +41,11 @@ function App() {
       <BrowserRouter>
         <Navbar user={user} setUser={setUser}/>
         <Routes>
-          <Route path='/login' element={!user ? <Login/> : <Navigate to="/dashboard" replace/>}/>
+          <Route path='/login' element={!user ? <Login/> : user.role==='Admin' ? <Navigate to="/admin" replace/> : <Navigate to="/dashboard" replace/>}/>
           <Route path='/dashboard' element={user ? <Dashboard user={user}/> : <Navigate to="/login" replace/>}/>
+          <Route path='/admin' element={user && user.role==="Admin" ? <AdminDashboard user={user}/> : <Navigate to="/login" replace/>}/>
 
-          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+          <Route path="*" element={!user ? <Navigate to="/login" replace /> : user.role === 'Admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />}/>
         </Routes>
       </BrowserRouter>
   )

@@ -104,9 +104,9 @@ const getUserBookingsandReassignments=async(req, res)=>{
         const user_id=req.user.id
         const bookingResult=await pool.query("SELECT b.*, r.id AS room_id, r.room_number, r.is_high_priority, r.capacity FROM bookings b JOIN rooms r ON b.room_id=r.id WHERE b.user_id=$1 AND b.status!='Cancelled' AND b.start_time > NOW() ORDER BY b.start_time ASC", [user_id])
 
-        const reassignmentResult=await pool.query("SELECT re.*, r.room_number AS original_room_number FROM reassignments re JOIN rooms r ON re.original_room_id=r.id WHERE re.new_user_id=$1 AND re.status='Pending'", [user_id])
+        const reassignmentResult=await pool.query("SELECT re.id as reassignment_id, re.status as reassignment_status, orig_room.room_number AS original_room_number, orig_b.start_time AS start_time, orig_b.end_time AS end_time, new_u.name AS new_user_name, new_u.email as new_user_email, new_u.role as new_user_role, new_room.room_number as new_room_number FROM reassignments re JOIN bookings orig_b on re.previous_booking_id=orig_b.id JOIN rooms orig_room ON re.original_room_id=orig_room.id JOIN users new_u ON re.new_user_id=new_u.id LEFT JOIN rooms new_room ON re.new_room_id=new_room.id WHERE orig_b.user_id=$1 AND re.status='Pending' ORDER BY orig_b.start_time ASC", [user_id])
 
-        return res.json({bookings: bookingResult.rows, reassingments: reassignmentResult.rows});
+        return res.json({bookings: bookingResult.rows, reassignments: reassignmentResult.rows});
     } catch (error) {
         console.log(error);
         res.status(500).json({error: "Failed to fetch bookings"})
