@@ -6,7 +6,8 @@ const Login = () => {
     // const error=searchParams.get("error");
 
     const handleOAuthLogin = () => {
-        window.location.href = "http://localhost:5000/auth/google";
+        const backendUrl=import.meta.env.VITE_API_URL || "https://localhost:5000";
+        window.location.href = `${backendUrl}/auth/google`;
     }
     return (
         <div className='min-h-screen flex items-center justify-center'>

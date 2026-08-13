@@ -14,6 +14,10 @@ const adminRouter=require("./routes/adminRoutes");
 const app=express();
 app.use(express.json());
 
+if(process.env.NODE_ENV==="production"){
+    app.set("trust proxy", 1);
+}
+
 const allowedOrigins=[
     "http://localhost:5173",
     process.env.CLIENT_URL
@@ -31,9 +35,7 @@ app.use(cors({
     credentials: true,
 }))
 
-if(process.env.NODE_ENV==="production"){
-    app.set("trust proxy", 1);
-}
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
