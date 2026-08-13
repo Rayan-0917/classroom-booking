@@ -14,17 +14,34 @@ const adminRouter=require("./routes/adminRoutes");
 const app=express();
 app.use(express.json());
 
+const allowedOrigins=[
+    "http://localhost:5173",
+    process.env.CLIENT_URL
+].filter(Boolean)
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || "https://localhost:5173",
-    credentials: true
+    origin: function(origin, callback){
+        if(!origin || allowedOrigins.includes(origin)){
+            callback(null, true)
+        }
+        else{
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
 }))
+
+if(process.env.NODE_ENV==="production"){
+    app.set("trust proxy", 1);
+}
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         httpOnly: true,
         maxAge: 24*60*60*1000
     }
