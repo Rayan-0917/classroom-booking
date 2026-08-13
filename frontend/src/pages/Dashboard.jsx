@@ -76,7 +76,7 @@ const Dashboard = ({user}) => {
           <p>Your booking will be reassigned due to a request from a higher priority faculty.</p>
           <div className='grid grid-cols-1'>
             {reassignments.map((re)=>(
-              <div key={re.reassignment_id} className='bg-white p-3 rounded-xl border border-amber-200 flex items-center justify-between shadow-sm'>
+              <div key={re.reassignment_id} className='bg-white p-3 mt-3 rounded-xl border border-amber-200 flex items-center justify-between shadow-sm'>
                 <div>
                   <div>
                     <span className='font-bold'>Requested By: </span> {re.new_user_name} ({re.new_user_role}) | {re.new_user_email}

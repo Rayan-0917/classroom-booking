@@ -58,17 +58,18 @@ const createBooking = async (req, res) => {
         const ifExistingOverlap = await client.query("SELECT b.id, b.user_id, u.priority, u.name AS current_holder FROM bookings b JOIN users u ON b.user_id=u.id WHERE b.room_id=$1 AND b.status!='Cancelled' AND (b.start_time<$2 AND b.end_time>$3) FOR UPDATE", [room_id, end, start])
 
         if (ifExistingOverlap.rows.length > 0) {
-            const currentBooking = ifExistingOverlap.rows[0];
-
-            //less priority do nothing
-            if (user_priority <= currentBooking.priority) {
-                await client.query("ROLLBACK");
-                return res.status(400).json({ error: `Slot is already booked by ${currentBooking.current_holder}` })
+            for(const booking of ifExistingOverlap.rows){
+                if(user_priority<=booking.priority){
+                    await client.query("ROLLBACK");
+                    return res.status(400).json({error: "Slot overlaps with higher or equal priority faculty."})
+                }
             }
-            //high priority assign the room and reassign another room to previous person
-            await client.query("UPDATE bookings SET status='Reassigned' WHERE id=$1", [currentBooking.id]);
 
-            await client.query("INSERT INTO reassignments (previous_booking_id, new_user_id, original_room_id, status) VALUES ($1, $2, $3, $4)", [currentBooking.id, user_id, room_id, 'Pending']);
+            for(const booking of ifExistingOverlap.rows){
+                await client.query("UPDATE bookings SET status='Reassigned' WHERE id=$1", [booking.id]);
+
+                await client.query("INSERT INTO reassignments (previous_booking_id, new_user_id, original_room_id, status) VALUES ($1, $2, $3, $4)", [booking.id, user_id, room_id, 'Pending'])
+            }
         }
 
         const roomRes = await client.query("SELECT room_number, is_high_priority FROM rooms WHERE id=$1", [room_id])

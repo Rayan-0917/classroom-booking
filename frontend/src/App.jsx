@@ -44,7 +44,6 @@ function App() {
           <Route path='/login' element={!user ? <Login/> : user.role==='Admin' ? <Navigate to="/admin" replace/> : <Navigate to="/dashboard" replace/>}/>
           <Route path='/dashboard' element={user ? <Dashboard user={user}/> : <Navigate to="/login" replace/>}/>
           <Route path='/admin' element={user && user.role==="Admin" ? <AdminDashboard user={user}/> : <Navigate to="/login" replace/>}/>
-
           <Route path="*" element={!user ? <Navigate to="/login" replace /> : user.role === 'Admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />}/>
         </Routes>
       </BrowserRouter>

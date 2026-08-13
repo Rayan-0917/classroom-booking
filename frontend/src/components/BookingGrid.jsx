@@ -114,12 +114,17 @@ const BookingGrid = ({user}) => {
                 setFeedbackMsg({type: "error", text: "Slot has been booked by someone else."})
                 return;
             }
-            setFeedbackMsg({type: "info", text: `The slot is booked by ${existingBooking.booked_by_name}. Confirming will reassign their booking.`})
         }
 
         if(selectedRoom && selectedRoom.id!==room.id){
             setSelectedRoom(room);
             setSelectedSlots([slot]);
+            if(existingBooking){
+                setFeedbackMsg({type: "info", text: `The slot is booked by ${existingBooking.booked_by_name}. Confirming will reassign their booking.`})
+            }
+            else{
+                setFeedbackMsg(null);
+            }
             return;
         }
 
@@ -127,22 +132,28 @@ const BookingGrid = ({user}) => {
 
         //clicking on selected slot 
         const isSlotSelected=selectedSlots.some((s)=>s.id===slot.id);
+
+        let updatedSlots=[]
+
         if(isSlotSelected){
-            const updatedSlots=selectedSlots.filter((s)=>s.id!==slot.id);
+            updatedSlots=selectedSlots.filter((s)=>s.id!==slot.id);
             if(updatedSlots.length===0){
                 setSelectedRoom(null);
+                setSelectedSlots([]);
+                setFeedbackMsg(null);
+                return;
             }
-            setSelectedSlots(updatedSlots);
-            return;
+        }
+        else{
+            updatedSlots=[...selectedSlots, slot].sort(
+                (a, b)=>a.timeStr.localeCompare(b.timeStr)
+            )
         }
 
-        const newSlots=[...selectedSlots, slot].sort(
-            (a, b)=>a.timeStr.localeCompare(b.timeStr)
-        )
 
         let isContinuous=true;
-        for(let i=0; i<newSlots.length-1; i++){
-            if(newSlots[i].endStr!==newSlots[i+1].timeStr){
+        for(let i=0; i<updatedSlots.length-1; i++){
+            if(updatedSlots[i].endStr!==updatedSlots[i+1].timeStr){
                 isContinuous=false;
                 break;
             }
@@ -153,8 +164,25 @@ const BookingGrid = ({user}) => {
             setSelectedSlots([slot]);
             return;
         }
-        setSelectedSlots(newSlots);
-        setFeedbackMsg(null);
+        setSelectedSlots(updatedSlots);
+
+        let collisions=[]
+
+        updatedSlots.forEach((s)=>{
+            const booking=getSlotDetails(room.id, s.timeStr);
+            if(booking && booking.user_id!==user.id && user.priority>(booking.booked_by_priority || 1)){
+                if(!collisions.includes(booking.booked_by_name)){
+                    collisions.push(booking.booked_by_name)
+                }
+            }
+        })
+
+        if(collisions.length>0){
+            setFeedbackMsg({type: "info", text: `Selected slots include bookings by ${collisions.join(', ')}`})
+        }
+        else{
+            setFeedbackMsg(null)
+        }
 
     }
 
@@ -298,13 +326,13 @@ const BookingGrid = ({user}) => {
                                     const booking=getSlotDetails(room.id, slot.timeStr);
                                     const isMine=booking && booking.user_id===user.id;
                                     const isPending=booking && booking.status==="Pending";
-                                    // console.log(selectedSlots)
                                     const isSelected=selectedRoom && selectedRoom?.id===room.id && selectedSlots?.some((s)=>s?.id===slot.id) 
-                                    // console.log(selectedSlots[0].id)
-                                    // console.log(selectedSlots[1].id)
 
                                     let style="border-green-400 bg-green-200 hover:bg-green-400 cursor-pointer"
-                                    if(booking){
+                                    if(isSelected){
+                                        style="bg-blue-200 border border-blue-300 hover:bg-blue-300 transition"
+                                    }
+                                    else if(booking){
                                         if(isMine){
                                             style="bg-blue-500 border-blue-600 text-white font-medium shadow-sm cursor-not-allowed"
                                         }
@@ -312,12 +340,10 @@ const BookingGrid = ({user}) => {
                                             style="bg-amber-500 border-amber-600 text-amber-900 font-medium shadow-sm cursor-not-allowed"
                                         }
                                         else{
-                                            style=user.priority>1 ? "bg-gray-100 border-gray-200 hover:bg-red-500 hover:text-white hover:border-red-500 cursor-pointer" : "bg-red-500 border-red-600 text-white cursor-not-allowed"
+                                            style=user.priority>1 ? "bg-red-500 border-red-600 text-white cursor-pointer" : "bg-red-500 border-red-600 text-white cursor-not-allowed"
                                         }
                                     }
-                                    else if(isSelected){
-                                        style="bg-blue-200 border border-blue-300 hover:bg-blue-300 transition"
-                                    }
+                                    
                                     else if(room.is_high_priority){
                                         style="bg-amber-400 border-amber-500 hover:bg-amber-500 cursor-pointer"
                                     }

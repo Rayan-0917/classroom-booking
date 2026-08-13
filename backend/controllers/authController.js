@@ -1,4 +1,7 @@
 const googleCallback=(req, res)=>{
+    if(req.user && req.user.role==='Admin'){
+        return res.redirect(`${process.env.CLIENT_URL}/admin`)
+    }
     res.redirect(`${process.env.CLIENT_URL}/dashboard`)
 }
 
