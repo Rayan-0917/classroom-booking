@@ -15,10 +15,11 @@ const Dashboard = ({user}) => {
   const fetchDashboardData=async()=>{
     try {
       const res=await api.get("/bookings/my-bookings");
+      console.log("Dashboard API response:", res.data);
       setMyBookings(res.data.bookings || []);
       setReassignments(res.data.reassignments || [])
     } catch (error) {
-      console.log(error);
+      console.log("Dashboard error:", error.response?.data || error);
     }
     finally{
       setLoading(false);
@@ -50,7 +51,7 @@ const Dashboard = ({user}) => {
     }
   }
 
-  // console.log(reassignments)
+  console.log(myBookings)
   return (
     <div className='max-w-7xl mx-auto p-4 space-y-8 md:p-6'>
       <div className='flex flex-col'>
@@ -172,7 +173,7 @@ const Dashboard = ({user}) => {
         )}
       </div>
 
-      <BookingGrid user={user}/>
+      <BookingGrid user={user} onBookingCreated={fetchDashboardData}/>
     </div>
   )
 }

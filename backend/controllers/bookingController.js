@@ -8,8 +8,8 @@ const getBookingsByDate = async (req, res) => {
             return res.status(400).json({ error: "Date is required" });
         }
 
-        const startOfDay = `${date} 00:00:00`;
-        const endOfDay = `${date} 23:59:59`;
+        const startOfDay = new Date(`${date}T00:00:00.000Z`).toISOString();
+        const endOfDay = new Date(`${date}T23:59:59.999Z`).toISOString();
 
         const result = await pool.query("SELECT b.*, u.name AS booked_by_name, u.email AS booked_by_email, u.role AS booked_by_role, u.priority AS booked_by_priority FROM bookings b JOIN users u ON b.user_id=u.id WHERE b.start_time>=$1 AND b.end_time<=$2 AND b.status IN ('Approved', 'Pending') ORDER BY b.start_time ASC", [startOfDay, endOfDay]);
 
@@ -126,7 +126,7 @@ const cancelBooking=async(req, res)=>{
 
         res.json({message: "Booking cancelled."})
     }
-    catch{
+    catch(error){
         console.log(error);
         res.status(500).json({ error: "Failed to cancel booking" });
     }
